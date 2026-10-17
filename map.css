@@ -1,0 +1,82 @@
+.lebanon-live-map {
+  overflow: hidden;
+  margin: 20px 0 14px;
+  border: 1px solid #cbd9cc;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 28px #173b2a14;
+}
+
+.lebanon-live-map iframe {
+  display: block;
+  width: 100%;
+  height: 280px;
+  border: 0;
+}
+
+.lebanon-live-map a {
+  display: block;
+  padding: 11px 14px;
+  color: #185b39;
+  background: #fff;
+  text-align: center;
+  font-weight: 800;
+  text-decoration: none;
+  border-top: 1px solid #e2e9e2;
+}
+
+.map-regions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.map-regions button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #cbd9cc;
+  border-radius: 11px;
+  color: #234f37;
+  background: #f9fcf8;
+  font: 700 12px Tajawal, sans-serif;
+  cursor: pointer;
+}
+
+.map-regions button:hover,
+.map-regions button:focus-visible {
+  border-color: #a7812e;
+  background: #fff7e3;
+  outline: none;
+}
+
+.map-regions button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-regions button b {
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  min-height: 24px;
+  border-radius: 50%;
+  color: #fff;
+  background: #286344;
+}
+
+@media (max-width: 900px) {
+  .map-card { min-height: auto; }
+  .lebanon-live-map iframe { height: 320px; }
+  .map-regions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .lebanon-live-map iframe { height: 260px; }
+  .map-regions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
