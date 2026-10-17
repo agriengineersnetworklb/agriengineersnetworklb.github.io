@@ -1,12 +1,19 @@
 (() => {
   const config = window.AGRI_CONFIG || {}, form = document.querySelector('#registrationForm'), message = document.querySelector('#formMessage'), button = document.querySelector('#submitButton');
+  const businessTypeInputs = [...form.querySelectorAll('[name="business_types"]')];
+  form.querySelectorAll('input[name]:not([type="checkbox"]):not([type="radio"]), select[name], textarea[name]').forEach(field => field.required = true);
+  const validateBusinessTypes = () => {
+    const selected = businessTypeInputs.some(field => field.checked);
+    businessTypeInputs[0]?.setCustomValidity(selected ? '' : 'يرجى اختيار نوع نشاط واحد على الأقل.');
+    return selected;
+  };
+  businessTypeInputs.forEach(field => field.addEventListener('change', validateBusinessTypes));
   const splitList = value => String(value || '').split(/[,،\n]/).map(x => x.trim()).filter(Boolean);
   const optional = value => String(value || '').trim() || null;
   const packDescriptions = (ar,en) => `[[AR]]\n${ar}\n[[EN]]\n${en}`;
   const show = (text, type) => { message.textContent = text; message.className = `form-message ${type}`; message.scrollIntoView({behavior:'smooth',block:'center'}); };
   form.addEventListener('submit', async event => {
-    event.preventDefault(); if (!form.reportValidity()) return;
-    if (!form.querySelector('[name="business_types"]:checked')) return show('يرجى اختيار نوع نشاط واحد على الأقل.', 'error');
+    event.preventDefault(); validateBusinessTypes(); if (!form.reportValidity()) return;
     if (!config.SUPABASE_URL || !config.SUPABASE_ANON_KEY) return show('تعذّر الاتصال بقاعدة البيانات. يرجى المحاولة لاحقاً.', 'error');
     const data = Object.fromEntries(new FormData(form).entries());
     const businessTypes = new FormData(form).getAll('business_types').map(String);
