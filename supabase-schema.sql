@@ -22,6 +22,9 @@ alter table public.listings add column if not exists engineer_name text;
 alter table public.listings add column if not exists description_ar text;
 alter table public.listings add column if not exists description_en text;
 create or replace function public.is_admin() returns boolean language sql security definer stable set search_path=public as $$select exists(select 1 from admin_users where lower(email)=lower(coalesce(auth.jwt()->>'email','')))$$;
+revoke all on public.admin_users from anon,authenticated;
+revoke execute on function public.is_admin() from public,anon;
+grant execute on function public.is_admin() to authenticated;
 drop policy if exists "admins read listings" on public.listings; create policy "admins read listings" on public.listings for select to authenticated using(public.is_admin());
 drop policy if exists "admins update listings" on public.listings; create policy "admins update listings" on public.listings for update to authenticated using(public.is_admin()) with check(public.is_admin());
 update public.listings set owner_name=contact_name where (owner_name is null or trim(owner_name)='') and contact_name is not null;
@@ -53,6 +56,7 @@ drop policy if exists "admins manage site settings" on public.site_settings;
 create policy "admins manage site settings" on public.site_settings for all to authenticated using(public.is_admin()) with check(public.is_admin());
 grant select on public.site_settings to anon,authenticated;
 grant insert,update on public.site_settings to authenticated;
+update public.site_settings set whatsapp='71989783',updated_at=now() where id=1;
 
 -- Public media bucket; only authenticated directory admins may write files.
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
