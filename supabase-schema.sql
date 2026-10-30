@@ -55,6 +55,12 @@ create policy "admins update engineers" on public.engineers for update to authen
 grant insert on public.engineers to anon;
 grant select,update on public.engineers to authenticated;
 
+drop view if exists public.engineers_public;
+create view public.engineers_public with(security_invoker=false) as
+select id,full_name,phone,email,governorate,district,town,university,degree,specialization,experience,expertise,bio,linkedin,file_url,file_type
+from public.engineers where status='approved' and consent=true;
+grant select on public.engineers_public to anon,authenticated;
+
 -- Editable website content for the no-code admin panel.
 create table if not exists public.site_settings(
  id integer primary key default 1 check(id=1),
