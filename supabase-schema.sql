@@ -10,7 +10,7 @@ create table if not exists public.listings(
  store_url text, accuracy_confirmation text, consent text, status text not null default 'pending' check(status in('pending','approved','rejected','archived')),
  directory_category text check(directory_category in('farm','nursery','laboratory','supplies','irrigation','organization','food','services')),
  directory_categories text[] not null default '{}',
- verified boolean not null default false, reviewer_notes text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+ verified boolean not null default false, display_order integer not null default 1000, reviewer_notes text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
 alter table public.listings enable row level security; alter table public.admin_users enable row level security;
 alter table public.listings add column if not exists directory_category text check(directory_category in('farm','nursery','laboratory','supplies','irrigation','organization','food','services'));
@@ -21,6 +21,7 @@ alter table public.listings add column if not exists managed_by_engineer boolean
 alter table public.listings add column if not exists engineer_name text;
 alter table public.listings add column if not exists description_ar text;
 alter table public.listings add column if not exists description_en text;
+alter table public.listings add column if not exists display_order integer not null default 1000;
 create or replace function public.is_admin() returns boolean language sql security definer stable set search_path=public as $$select exists(select 1 from admin_users where lower(email)=lower(coalesce(auth.jwt()->>'email','')))$$;
 revoke all on public.admin_users from anon,authenticated;
 revoke execute on function public.is_admin() from public,anon;
@@ -29,7 +30,7 @@ drop policy if exists "admins read listings" on public.listings; create policy "
 drop policy if exists "admins update listings" on public.listings; create policy "admins update listings" on public.listings for update to authenticated using(public.is_admin()) with check(public.is_admin());
 update public.listings set owner_name=contact_name where (owner_name is null or trim(owner_name)='') and contact_name is not null;
 drop view if exists public.listings_public;
-create or replace view public.listings_public with(security_invoker=false) as select id,name,business_types,directory_category,directory_categories,description,description_ar,description_en,coalesce(nullif(trim(owner_name),''),contact_name) as owner_name,contact_name,position,year_established,employees,governorate,district,town,address,map_url,multiple_locations,phone,whatsapp,email,website,facebook,instagram,products_services,crops,details,logo_url,main_photo_url,additional_photos,works_directly,delivery,service_outside,areas_served,online_available,store_url,managed_by_engineer,engineer_name,verified from public.listings where status='approved' and consent is not null;
+create or replace view public.listings_public with(security_invoker=false) as select id,name,business_types,directory_category,directory_categories,description,description_ar,description_en,coalesce(nullif(trim(owner_name),''),contact_name) as owner_name,contact_name,position,year_established,employees,governorate,district,town,address,map_url,multiple_locations,phone,whatsapp,email,website,facebook,instagram,products_services,crops,details,logo_url,main_photo_url,additional_photos,works_directly,delivery,service_outside,areas_served,online_available,store_url,managed_by_engineer,engineer_name,verified,display_order from public.listings where status='approved' and consent is not null;
 grant select on public.listings_public to anon,authenticated; revoke all on public.listings from anon;
 drop policy if exists "public can submit pending listings" on public.listings;
 create policy "public can submit pending listings" on public.listings for insert to anon with check(status='pending' and verified=false and reviewer_notes='' and consent is not null and accuracy_confirmation is not null and length(trim(name))>=2);
