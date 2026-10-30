@@ -35,6 +35,25 @@ drop policy if exists "public can submit pending listings" on public.listings;
 create policy "public can submit pending listings" on public.listings for insert to anon with check(status='pending' and verified=false and reviewer_notes='' and consent is not null and accuracy_confirmation is not null and length(trim(name))>=2);
 grant insert on public.listings to anon;
 
+-- Agricultural engineers directory applications.
+create table if not exists public.engineers(
+ id uuid primary key default gen_random_uuid(), full_name text not null, phone text not null, email text not null,
+ governorate text not null, district text not null, town text not null, university text not null,
+ degree text not null, specialization text not null, experience text not null, expertise text[] not null default '{}',
+ bio text not null, linkedin text, file_url text, file_type text, consent boolean not null default false,
+ status text not null default 'pending' check(status in('pending','approved','rejected','archived')),
+ reviewer_notes text not null default '', created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+alter table public.engineers enable row level security;
+drop policy if exists "public submit engineers" on public.engineers;
+create policy "public submit engineers" on public.engineers for insert to anon with check(status='pending' and consent=true and reviewer_notes='');
+drop policy if exists "admins read engineers" on public.engineers;
+create policy "admins read engineers" on public.engineers for select to authenticated using(public.is_admin());
+drop policy if exists "admins update engineers" on public.engineers;
+create policy "admins update engineers" on public.engineers for update to authenticated using(public.is_admin()) with check(public.is_admin());
+grant insert on public.engineers to anon;
+grant select,update on public.engineers to authenticated;
+
 -- Editable website content for the no-code admin panel.
 create table if not exists public.site_settings(
  id integer primary key default 1 check(id=1),
