@@ -28,6 +28,8 @@ revoke execute on function public.is_admin() from public,anon;
 grant execute on function public.is_admin() to authenticated;
 drop policy if exists "admins read listings" on public.listings; create policy "admins read listings" on public.listings for select to authenticated using(public.is_admin());
 drop policy if exists "admins update listings" on public.listings; create policy "admins update listings" on public.listings for update to authenticated using(public.is_admin()) with check(public.is_admin());
+drop policy if exists "admins insert listings" on public.listings; create policy "admins insert listings" on public.listings for insert to authenticated with check(public.is_admin());
+drop policy if exists "admins delete listings" on public.listings; create policy "admins delete listings" on public.listings for delete to authenticated using(public.is_admin());
 update public.listings set owner_name=contact_name where (owner_name is null or trim(owner_name)='') and contact_name is not null;
 drop view if exists public.listings_public;
 create or replace view public.listings_public with(security_invoker=false) as select id,name,business_types,directory_category,directory_categories,description,description_ar,description_en,coalesce(nullif(trim(owner_name),''),contact_name) as owner_name,contact_name,position,year_established,employees,governorate,district,town,address,map_url,multiple_locations,phone,whatsapp,email,website,facebook,instagram,products_services,crops,details,logo_url,main_photo_url,additional_photos,works_directly,delivery,service_outside,areas_served,online_available,store_url,managed_by_engineer,engineer_name,verified,display_order from public.listings where status='approved' and consent is not null;
@@ -35,6 +37,7 @@ grant select on public.listings_public to anon,authenticated; revoke all on publ
 drop policy if exists "public can submit pending listings" on public.listings;
 create policy "public can submit pending listings" on public.listings for insert to anon with check(status='pending' and verified=false and reviewer_notes='' and consent is not null and accuracy_confirmation is not null and length(trim(name))>=2);
 grant insert on public.listings to anon;
+grant select,insert,update,delete on public.listings to authenticated;
 
 -- Agricultural engineers directory applications.
 create table if not exists public.engineers(
@@ -52,8 +55,12 @@ drop policy if exists "admins read engineers" on public.engineers;
 create policy "admins read engineers" on public.engineers for select to authenticated using(public.is_admin());
 drop policy if exists "admins update engineers" on public.engineers;
 create policy "admins update engineers" on public.engineers for update to authenticated using(public.is_admin()) with check(public.is_admin());
+drop policy if exists "admins insert engineers" on public.engineers;
+create policy "admins insert engineers" on public.engineers for insert to authenticated with check(public.is_admin());
+drop policy if exists "admins delete engineers" on public.engineers;
+create policy "admins delete engineers" on public.engineers for delete to authenticated using(public.is_admin());
 grant insert on public.engineers to anon;
-grant select,update on public.engineers to authenticated;
+grant select,insert,update,delete on public.engineers to authenticated;
 
 drop view if exists public.engineers_public;
 create view public.engineers_public with(security_invoker=false) as
@@ -86,7 +93,7 @@ update public.site_settings set whatsapp='71989783',updated_at=now() where id=1;
 
 -- Public media bucket; only authenticated directory admins may write files.
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
-values('agri-media','agri-media',true,8388608,array['image/png','image/jpeg','image/webp','image/svg+xml'])
+values('agri-media','agri-media',true,8388608,array['image/png','image/jpeg','image/webp','image/svg+xml','application/pdf'])
 on conflict(id) do update set public=true,file_size_limit=8388608,allowed_mime_types=excluded.allowed_mime_types;
 drop policy if exists "public read agri media" on storage.objects;
 create policy "public read agri media" on storage.objects for select to public using(bucket_id='agri-media');
