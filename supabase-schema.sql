@@ -77,8 +77,39 @@ create table if not exists public.site_settings(
  about_title_ar text, about_title_en text,
  about_text_ar text, about_text_en text,
  contact_email text, instagram text, whatsapp text, banner_url text,
+ brand_name_ar text, brand_name_en text, brand_subtitle text, logo_url text,
+ team_eyebrow_ar text, team_eyebrow_en text, team_title_ar text, team_title_en text, team_intro_ar text, team_intro_en text,
+ mostafa_name text, mostafa_role_ar text, mostafa_role_en text, mostafa_bio_ar text, mostafa_bio_en text, mostafa_photo_url text, mostafa_linkedin text,
+ joe_name text, joe_role_ar text, joe_role_en text, joe_bio_ar text, joe_bio_en text, joe_photo_url text, joe_linkedin text,
+ footer_copyright text, developer_credit text,
  updated_at timestamptz not null default now()
 );
+alter table public.site_settings add column if not exists brand_name_ar text;
+alter table public.site_settings add column if not exists brand_name_en text;
+alter table public.site_settings add column if not exists brand_subtitle text;
+alter table public.site_settings add column if not exists logo_url text;
+alter table public.site_settings add column if not exists team_eyebrow_ar text;
+alter table public.site_settings add column if not exists team_eyebrow_en text;
+alter table public.site_settings add column if not exists team_title_ar text;
+alter table public.site_settings add column if not exists team_title_en text;
+alter table public.site_settings add column if not exists team_intro_ar text;
+alter table public.site_settings add column if not exists team_intro_en text;
+alter table public.site_settings add column if not exists mostafa_name text;
+alter table public.site_settings add column if not exists mostafa_role_ar text;
+alter table public.site_settings add column if not exists mostafa_role_en text;
+alter table public.site_settings add column if not exists mostafa_bio_ar text;
+alter table public.site_settings add column if not exists mostafa_bio_en text;
+alter table public.site_settings add column if not exists mostafa_photo_url text;
+alter table public.site_settings add column if not exists mostafa_linkedin text;
+alter table public.site_settings add column if not exists joe_name text;
+alter table public.site_settings add column if not exists joe_role_ar text;
+alter table public.site_settings add column if not exists joe_role_en text;
+alter table public.site_settings add column if not exists joe_bio_ar text;
+alter table public.site_settings add column if not exists joe_bio_en text;
+alter table public.site_settings add column if not exists joe_photo_url text;
+alter table public.site_settings add column if not exists joe_linkedin text;
+alter table public.site_settings add column if not exists footer_copyright text;
+alter table public.site_settings add column if not exists developer_credit text;
 alter table public.site_settings enable row level security;
 insert into public.site_settings(id,eyebrow_ar,eyebrow_en,hero_title_ar,hero_title_en,hero_text_ar,hero_text_en,about_title_ar,about_title_en,about_text_ar,about_text_en,contact_email,instagram)
 values(1,'مبادرة وطنية مستقلة · التسجيل مجاني','Independent national initiative · Free registration','كلّ القطاع الزراعي اللبناني، في مكان واحد.','Lebanon’s agricultural sector, all in one place.','اكتشف المؤسسات والمزارع والخدمات الموثوقة حسب النشاط والمنطقة، وتواصل معها مباشرة.','Discover trusted farms, institutions and agricultural services by activity and location.','هل تعمل في القطاع الزراعي؟','Do you work in agriculture?','سجّل مؤسستك أو نشاطك مجاناً وساعدنا في بناء قاعدة بيانات زراعية شاملة ومفيدة للبنان.','Register your organization for free and help build a comprehensive agricultural database for Lebanon.','agriengineersnetwork@gmail.com','@agri.engineersnetwork')
