@@ -1,0 +1,74 @@
+html,body{max-width:100%;overflow-x:hidden}
+img,svg,video,iframe{max-width:100%}
+.results-grid,.results-grid>*,.cards,.card,.card-head,.team-grid,.team-card,.team-copy,.form-grid>*{min-width:0}
+.card h3,.card p,.meta,.detail-row,.team-card p{overflow-wrap:anywhere;word-break:break-word}
+
+@media(max-width:700px){
+  .site-header{flex-wrap:nowrap;min-height:72px;padding:9px 12px}
+  .site-header .brand{min-width:0;flex:1}
+  .site-header .brand-copy{min-width:0}
+  .site-header .brand-copy b{overflow-wrap:anywhere}
+  .hero{grid-template-columns:minmax(0,1fr);gap:26px;min-height:0;padding:38px 16px 62px}
+  .hero h1{font-size:clamp(34px,11vw,44px);overflow-wrap:anywhere}
+  .hero p{font-size:17px}
+  .hero-actions{display:grid;grid-template-columns:1fr;gap:10px}
+  .hero-actions .btn{width:100%;min-height:48px;padding:10px 14px;text-align:center;white-space:normal}
+  .trust{display:grid;gap:10px}
+  .cover{width:100%;border-width:3px;border-radius:18px}
+  .search-shell{width:100%;margin-top:-24px;padding:0 12px}
+  .search-shell .filters{grid-template-columns:1fr;padding:14px}
+  .search-shell>.check{width:auto;margin:12px 4px}
+  .categories{padding:44px 12px}
+  .category-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .category-tiles button{min-width:0;min-height:130px;padding:13px;overflow-wrap:anywhere}
+  .category-tiles span{margin-bottom:16px}
+  .results{padding:44px 12px}
+  .results-grid{display:grid;grid-template-columns:minmax(0,1fr);width:100%;gap:20px}
+  .cards{grid-template-columns:minmax(0,1fr);width:100%;gap:13px}
+  .card{width:100%;padding:18px}
+  .section-heading{gap:10px;flex-wrap:wrap}
+  .map-card{width:100%;min-width:0;padding:16px;border-radius:20px}
+  .map-title,.lebanon-live-map,.map-regions,.map-card>p{width:100%;min-width:0}
+  .lebanon-live-map iframe{width:100%;height:245px}
+  .map-regions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .team{padding:52px 12px}
+  .team-card{grid-template-columns:1fr;width:100%}
+  .team-photo{height:min(105vw,390px)}
+  .team-copy{min-height:0;padding:20px}
+  .team-role{width:auto;align-self:flex-start;white-space:normal}
+  .about{padding:42px 16px}
+  .about .btn{width:100%;text-align:center}
+  footer{flex-direction:column;padding:24px 16px;overflow-wrap:anywhere}
+  dialog,.review-dialog{width:calc(100vw - 20px);max-width:none;padding:22px 16px;border-radius:16px}
+  .detail-grid,.review-grid,.cms-grid{grid-template-columns:minmax(0,1fr)}
+  .detail-row.wide,.cms-wide{grid-column:auto}
+  .profile-media{margin:-22px -16px 18px}
+  .registration-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;overflow-wrap:anywhere}
+  .registration-header>*{min-width:0;font-size:12px;text-align:center}
+  .registration-main{width:100%;padding:28px 12px 60px}
+  .registration-intro,.form-section{padding:20px 16px;border-radius:18px}
+  .registration-intro h1{font-size:clamp(29px,9vw,40px)}
+  .form-title{align-items:flex-start}
+  .form-title h2{font-size:20px;overflow-wrap:anywhere}
+  .form-grid{grid-template-columns:minmax(0,1fr)}
+  .form-grid input,.form-grid select,.form-grid textarea{min-width:0;font-size:16px}
+  .choice-grid,.category-checks{grid-template-columns:minmax(0,1fr)}
+  .admin-shell{width:100%;padding:14px 10px}
+  .admin-header{gap:12px;padding:14px 12px}
+  .admin-header>div:last-child,.submission-actions,.review-actions,.cms-actions{width:100%}
+  .submission-actions .btn,.review-actions .btn{flex:1 1 140px;white-space:normal}
+  .submission{width:100%;padding:16px}
+  .cms-panel{padding:16px 12px;border-radius:14px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .stat{padding:14px}
+  .admin-tools{grid-template-columns:minmax(0,1fr)}
+  .order-item{min-width:0}
+  .order-name{min-width:0;overflow-wrap:anywhere}
+}
+
+@media(max-width:360px){
+  .category-tiles,.map-regions,.stats{grid-template-columns:minmax(0,1fr)}
+  .brand-logo{width:46px;height:46px}
+  .brand-copy b{font-size:12px}
+  .hero h1{font-size:32px}
+}
