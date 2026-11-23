@@ -39,6 +39,78 @@ create policy "public can submit pending listings" on public.listings for insert
 grant insert on public.listings to anon;
 grant select,insert,update,delete on public.listings to authenticated;
 
+-- Stable public registration endpoint. It validates and normalizes the JSON
+-- payload server-side, then inserts with fixed moderation values. This avoids
+-- losing a submission after its images have already uploaded.
+create or replace function public.submit_listing(payload jsonb)
+returns uuid
+language plpgsql
+security definer
+set search_path=public,pg_temp
+as $$
+declare
+  new_id uuid;
+  business_types_value text[];
+  products_services_value text[];
+  crops_value text[];
+  additional_photos_value text[];
+  areas_served_value text[];
+begin
+  if payload is null or jsonb_typeof(payload)<>'object' then
+    raise exception using errcode='22023',message='Invalid submission payload';
+  end if;
+
+  select coalesce(array_agg(value),'{}'::text[]) into business_types_value from jsonb_array_elements_text(coalesce(payload->'business_types','[]'::jsonb));
+  select coalesce(array_agg(value),'{}'::text[]) into products_services_value from jsonb_array_elements_text(coalesce(payload->'products_services','[]'::jsonb));
+  select coalesce(array_agg(value),'{}'::text[]) into crops_value from jsonb_array_elements_text(coalesce(payload->'crops','[]'::jsonb));
+  select coalesce(array_agg(value),'{}'::text[]) into additional_photos_value from jsonb_array_elements_text(coalesce(payload->'additional_photos','[]'::jsonb));
+  select coalesce(array_agg(value),'{}'::text[]) into areas_served_value from jsonb_array_elements_text(coalesce(payload->'areas_served','[]'::jsonb));
+
+  if length(btrim(coalesce(payload->>'name','')))<2
+     or cardinality(business_types_value)=0
+     or length(btrim(coalesce(payload->>'description_ar','')))=0
+     or length(btrim(coalesce(payload->>'description_en','')))=0
+     or length(btrim(coalesce(payload->>'contact_name','')))=0
+     or length(btrim(coalesce(payload->>'phone','')))=0
+     or length(btrim(coalesce(payload->>'email','')))=0
+     or cardinality(products_services_value)=0
+     or nullif(btrim(payload->>'logo_url'),'') is null
+     or nullif(btrim(payload->>'main_photo_url'),'') is null
+     or cardinality(additional_photos_value)=0
+     or nullif(btrim(payload->>'consent'),'') is null
+     or nullif(btrim(payload->>'accuracy_confirmation'),'') is null then
+    raise exception using errcode='22023',message='Required registration fields are missing';
+  end if;
+
+  insert into public.listings(
+    name,business_types,description,description_ar,description_en,year_established,employees,
+    governorate,district,town,address,map_url,multiple_locations,owner_name,owner_whatsapp,
+    contact_name,position,phone,whatsapp,email,website,facebook,instagram,products_services,crops,
+    details,logo_url,main_photo_url,additional_photos,managed_by_engineer,engineer_name,works_directly,
+    delivery,service_outside,areas_served,online_available,store_url,consent,accuracy_confirmation,
+    status,verified,reviewer_notes
+  ) values (
+    btrim(payload->>'name'),business_types_value,nullif(btrim(payload->>'description'),''),
+    btrim(payload->>'description_ar'),btrim(payload->>'description_en'),nullif(btrim(payload->>'year_established'),''),
+    nullif(btrim(payload->>'employees'),''),nullif(btrim(payload->>'governorate'),''),nullif(btrim(payload->>'district'),''),
+    nullif(btrim(payload->>'town'),''),nullif(btrim(payload->>'address'),''),nullif(btrim(payload->>'map_url'),''),
+    nullif(btrim(payload->>'multiple_locations'),''),btrim(payload->>'contact_name'),nullif(btrim(payload->>'whatsapp'),''),
+    btrim(payload->>'contact_name'),nullif(btrim(payload->>'position'),''),btrim(payload->>'phone'),
+    nullif(btrim(payload->>'whatsapp'),''),btrim(payload->>'email'),nullif(btrim(payload->>'website'),''),
+    nullif(btrim(payload->>'facebook'),''),nullif(btrim(payload->>'instagram'),''),products_services_value,crops_value,
+    nullif(btrim(payload->>'details'),''),btrim(payload->>'logo_url'),btrim(payload->>'main_photo_url'),additional_photos_value,
+    coalesce((payload->>'managed_by_engineer')::boolean,false),nullif(btrim(payload->>'engineer_name'),''),
+    nullif(btrim(payload->>'works_directly'),''),nullif(btrim(payload->>'delivery'),''),nullif(btrim(payload->>'service_outside'),''),
+    areas_served_value,nullif(btrim(payload->>'online_available'),''),nullif(btrim(payload->>'store_url'),''),
+    'Confirmed through portal registration','Confirmed through portal registration','pending',false,''
+  ) returning id into new_id;
+
+  return new_id;
+end;
+$$;
+revoke all on function public.submit_listing(jsonb) from public;
+grant execute on function public.submit_listing(jsonb) to anon,authenticated;
+
 -- Agricultural engineers directory applications.
 create table if not exists public.engineers(
  id uuid primary key default gen_random_uuid(), full_name text not null, phone text not null, email text not null,
